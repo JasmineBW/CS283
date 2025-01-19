@@ -1,0 +1,10 @@
+{
+    "makefile.makefilePath": "/Users/jasmine/Documents/GitHub/CS283/1-C-Refresher/makefile.txt",
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/Users/jasmine/Documents/GitHub/CS283/1-C-Refresher",
+            "binaryPath": "/Users/jasmine/Documents/GitHub/CS283/1-C-Refresher/stringfun",
+            "binaryArgs": []
+        }
+    ]
+}
