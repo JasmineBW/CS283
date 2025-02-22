@@ -35,6 +35,9 @@ typedef struct command{
 
 #define SH_PROMPT "dsh2> "
 #define EXIT_CMD "exit"
+#define DRAGON_CMD "dragon"
+#define CD_CMD "cd"
+#define RC_CMD "rc"
 
 //Standard Return Codes
 #define OK                       0
@@ -75,5 +78,13 @@ int exec_cmd(cmd_buff_t *cmd);
 #define CMD_OK_HEADER       "PARSED COMMAND LINE - TOTAL COMMANDS %d\n"
 #define CMD_WARN_NO_CMD     "warning: no commands provided\n"
 #define CMD_ERR_PIPE_LIMIT  "error: piping limited to %d commands\n"
+#define CMD_ERR_EXECUTE     "error: command execution failed\n"
 
+#define ERR_ENOENT          "Command not found in PATH\n"
+#define ERR_EACCES          "Permission denied\n"
+#define ERR_E2BIG           "Argument list too long\n"
+#define ERR_EFAULT          "Bad argument address\n"
+#define ERR_ETXTBSY         "Command file busy\n"
+#define ERR_ENOMEM          "Not enough memory to execute command\n"
+#define ERR_ENOEXEC         "Command file is not executable format\n"
 #endif
