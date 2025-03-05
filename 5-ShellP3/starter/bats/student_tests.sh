@@ -130,5 +130,5 @@ EOF
     echo "${stripped_output} -> ${expected_output}"
     [ "$status" -eq 0 ]
     # Adjust the expected error message substring based on your CMD_ERR_EXECUTE constant.
-    [[ "$output" == *"CMD_ERR_EXECUTE"* ]]
+    [[ "$output" == *"CMD_ERR_PIPE_LIMIT"* ]]
 }
