@@ -342,7 +342,7 @@ int exec_client_requests(int cli_socket) {
                 last_rc = cmd_rc;
              }
              strcpy(recv_buff, "");
-             last_rc = OK;
+             last_rc = cmd_rc;
         }
         send_message_string(cli_socket, recv_buff);
         free_cmd_list(&cmd_list);
@@ -471,28 +471,49 @@ int rsh_execute_pipeline(int cli_sock, command_list_t *clist) {
              exit(EXIT_FAILURE);
          }
  
-         if (pids[i] == 0) {  // Child process
-            if (i == 0) {
+        if (pids[i] == 0) {  // Child process
+            if (clist->commands[i].input_file != NULL) {
+                int fd_input = open_input_file(clist->commands[i].input_file);
+                if (fd_input == -1) {
+                    perror("opening input file failed");
+                    exit(EXIT_FAILURE);
+                }
+                dup2(fd_input, STDIN_FILENO);
+                close(fd_input);
+            } else if (i == 0) {
                  dup2(cli_sock, STDIN_FILENO);
              } else if (i > 0) {
                  dup2(pipes[i-1][0], STDIN_FILENO);
              }
              
-            if (i == num_commands - 1) {
-                 dup2(cli_sock, STDOUT_FILENO);
-             } else if (i < num_commands - 1) {
-                 dup2(pipes[i][1], STDOUT_FILENO);
-             }
+        if (clist->commands[i].output_file != NULL) {
+            int fd_output = (clist->commands[i].append_mode == 1) ? append_output_file(clist->commands[i].output_file) : open_output_file(clist->commands[i].output_file);
+            if (fd_output == -1) {
+                perror("opening output file failed");
+                exit(EXIT_FAILURE);
+            }
+            dup2(fd_output, STDOUT_FILENO);
+            close(fd_output);
+        } else if (i == num_commands - 1) {
+            dup2(cli_sock, STDOUT_FILENO);
+        } else if (i < num_commands - 1) {
+            dup2(pipes[i][1], STDOUT_FILENO);
+        }
 
-         exec_cmd(&clist->commands[i]);
-     }
+        // Parent process: close all pipe ends
+        for (int j = 0; j < clist->num - 1; j++) {
+            close(pipes[j][0]);
+            close(pipes[j][1]);
+        }
+        exec_cmd(&clist->commands[i]);
+        exit(EXIT_FAILURE);
+    }
 }
-
-    // Parent process: close all pipe ends
-    for (int i = 0; i < clist->num - 1; i++) {
+    for (int i = 0; i < num_commands - 1; i++) {
         close(pipes[i][0]);
         close(pipes[i][1]);
     }
+
     // Wait for all children
     for (int i = 0; i < clist->num; i++) {
         waitpid(pids[i], &pids_st[i], 0);
